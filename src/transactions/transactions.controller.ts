@@ -13,6 +13,16 @@ export class TransactionsController {
     return await this.transactionsService.create(createTransactionDto);
   }
 
+  // This listens for GET requests like: http://localhost:3000/transactions/portfolio/1
+  @Get('portfolio/:userId')
+  async getPortfolio(@Param('userId') userId: string) {
+    // We use the '+' sign to quickly convert the URL string parameter into a number
+    return await this.transactionsService.getPortfolio(+userId);
+  }
+
+
+
+
   @Get()
   findAll() {
     return this.transactionsService.findAll();

@@ -1,5 +1,5 @@
 export class CreateTransactionDto {
   userId: number;
-  cedearId: number;
+  assetId: number;
   quantity: number; 
 }

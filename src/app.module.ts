@@ -2,28 +2,27 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CedearsModule } from './cedears/cedears.module'; // The CLI added this
 import { YahooFinanceModule } from './yahoo-finance/yahoo-finance.module';
 import { UsersModule } from './users/users.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { AssetsModule } from './assets/assets.module';
 
 @Module({
   imports: [
-    // Your database connection is back!
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'capital-manager-db.cpmc8me6c67f.us-east-2.rds.amazonaws.com', // Your AWS Endpoint
       port: 3306,
-      username: 'root',
-      password: '',
-      database: 'cedear_tracker',
-      autoLoadEntities: true,
-      synchronize: true, 
+      username: 'admin', // AWS Master Username
+      password: 'Arbol557+', // The password you created for RDS
+      database: 'capital_manager', // The database you just created in HeidiSQL
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // This tells TypeORM to build the tables in the cloud automatically
     }),
-    CedearsModule,
     YahooFinanceModule,
     UsersModule,
-    TransactionsModule, // The CLI registered your new module here
+    TransactionsModule,
+    AssetsModule, // The CLI registered your new module here
   ],
   controllers: [AppController],
   providers: [AppService],
