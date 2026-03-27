@@ -14,7 +14,7 @@ import { AssetsModule } from './assets/assets.module';
       host: 'capital-manager-db.cpmc8me6c67f.us-east-2.rds.amazonaws.com', // Your AWS Endpoint
       port: 3306,
       username: 'admin', // AWS Master Username
-      password: 'Arbol557+', // The password you created for RDS
+      password: process.env.DB_PASSWORD, // The password you created for RDS
       database: 'capital_manager', // The database you just created in HeidiSQL
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // This tells TypeORM to build the tables in the cloud automatically
