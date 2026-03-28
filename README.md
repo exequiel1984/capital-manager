@@ -23,3 +23,4 @@ Originally conceived as a single-asset tracker, this system has been architected
 1. **Clone the repository:**
    ```bash
    git clone [https://github.com/exequiel1984/capital-manager.git](https://github.com/exequiel1984/capital-manager.git)
+   cd capital-manager
