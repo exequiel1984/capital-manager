@@ -24,3 +24,38 @@ Originally conceived as a single-asset tracker, this system has been architected
    ```bash
    git clone [https://github.com/exequiel1984/capital-manager.git](https://github.com/exequiel1984/capital-manager.git)
    cd capital-manager
+   ```
+2. **Install dependencies:**
+(Requires Node.js v20+)
+   ```bash
+   npm install
+   ```
+3. **Configure Environment Variables:**
+Create a .env file in the root directory and add your database credentials securely (this file is git-ignored):
+   ```bash
+   DB_PASSWORD=your_secure_password
+   ```
+4. **Run the application:**
+   ```bash
+   npm run start:dev
+   ```
+## ☁️ Cloud Deployment & CI/CD
+This API is deployed and running in production on AWS infrastructure with a fully automated CI/CD pipeline.
+
+### Infrastructure
+Compute: AWS EC2 (Ubuntu 24.04 LTS)
+
+Process Manager: PM2 (Daemonized for continuous background execution and auto-restarts)
+
+Networking: Custom VPC Security Groups exposing port 3000 for web traffic.
+
+### Automated Deployment (GitHub Actions)
+The deployment process is entirely zero-touch. Whenever code is pushed to the main branch, a GitHub Actions workflow automatically:
+
+1. Connects securely to the AWS EC2 server via SSH.
+
+2. Pulls the latest code repository.
+
+3. Installs dependencies and builds the production-ready TypeScript code.
+
+4. Seamlessly restarts the PM2 daemon to serve the updated API with zero downtime.
