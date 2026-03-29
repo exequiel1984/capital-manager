@@ -7,7 +7,8 @@ export class AppService {
       ticker: 'AAPL.BA',
       company: 'Apple Inc.',
       currency: 'ARS',
-      price: 15400.50
+      price: 15400.50,
+      status: 'CI/CD Pipeline is LIVE! 🚀' // <-- Add this new line!
     };
   }
 }
