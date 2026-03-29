@@ -1,0 +1,33 @@
+name: Deploy to Production
+
+# 1. The Trigger: Tell GitHub to run this script ONLY when code is pushed to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+# 2. The Job: What GitHub actually does
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # GitHub boots up a temporary Linux server to run this task
+    
+    steps:
+      - name: SSH into EC2 and run deployment commands
+        uses: appleboy/ssh-action@v1.0.3 # A pre-built action that handles SSH connections securely
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Load Node.js and NVM into this temporary SSH session
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            
+            # Navigate to your project, pull the new code, and rebuild
+            cd capital-manager
+            git pull origin main
+            npm install
+            npm run build
+            
+            # Restart the background process to serve the new code
+            pm2 restart capital-manager-api
