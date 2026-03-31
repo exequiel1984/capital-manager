@@ -7,6 +7,7 @@ export class AppController {
 
   @Get()
   getTrackingData() {
-    return this.appService.getMockCedear();
+    // Call the new async method
+    return this.appService.getLiveCedear();
   }
 }
