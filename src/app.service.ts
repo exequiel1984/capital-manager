@@ -1,5 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2'; // <-- Capital 'Y'
+
+// Instantiate the tool before using it (Required for the new version)
+const yahooFinance = new YahooFinance();
 
 @Injectable()
 export class AppService {
