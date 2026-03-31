@@ -17,8 +17,11 @@ export class AppService {
         status: 'CI/CD Pipeline is LIVE! 🚀 - Now with REAL Market Data!'
       };
     } catch (error) {
-      // If Yahoo Finance is down or the ticker is invalid, gracefully handle the error
-      throw new InternalServerErrorException(`Failed to fetch data for ticker: ${ticker}`);
+      // Log the full error to your PM2 server console
+      console.error('Yahoo Finance Error:', error); 
+      
+      // Send the specific error message to the browser so we can read it
+      throw new InternalServerErrorException(`Failed to fetch data for ${ticker}. Reason: ${error.message}`);
     }
   }
 }
