@@ -15,6 +15,7 @@ Originally conceived as a single-asset tracker, this system has been architected
 
 * **Dynamic Asset Ecosystem:** A normalized database structure (`asset_classes` -> `assets`) that dynamically supports Equities, CEDEARs, Cryptocurrencies, Bonds, and Mutual Funds without requiring schema modifications.
 * **Automated Market Data:** Fetches live stock and asset prices in real-time to execute transactions and calculate accurate portfolio valuations.
+* **Advanced Technical Analysis Engine:** Processes raw historical market data to perform complex financial calculations on-the-fly, including indicators like the Moving Average Convergence Divergence (MACD).
 * **Cloud-Native Database:** Fully integrated with AWS Relational Database Service (RDS) for production-grade data persistence and remote accessibility.
 * **Design Principles:** Built utilizing SOLID principles, specifically leveraging NestJS's dependency injection for strict Separation of Concerns between Controllers, Services, and Data Access layers.
 
@@ -24,7 +25,6 @@ Originally conceived as a single-asset tracker, this system has been architected
    ```bash
    git clone [https://github.com/exequiel1984/capital-manager.git](https://github.com/exequiel1984/capital-manager.git)
    cd capital-manager
-   ```
 2. **Install dependencies:**
 (Requires Node.js v20+)
    ```bash
