@@ -4,12 +4,15 @@ import { AssetsService } from './assets.service';
 import { AssetsController } from './assets.controller';
 import { Asset } from './entities/asset.entity';
 import { AssetClass } from './entities/asset-class.entity';
+import { MarketDataModule } from '../market-data/market-data.module'; // <-- Import our new module
 
 @Module({
-  // This registers both tables with TypeORM for this module
-  imports: [TypeOrmModule.forFeature([Asset, AssetClass])],
+  imports: [
+    TypeOrmModule.forFeature([Asset, AssetClass]), // <-- Keep both of your entities here!
+    MarketDataModule // <-- Add the live market data to the imports
+  ],
   controllers: [AssetsController],
   providers: [AssetsService],
-  exports: [TypeOrmModule] // Export this so TransactionsModule can use it!
+  exports: [TypeOrmModule]
 })
-export class AssetsModule {}  
+export class AssetsModule {}

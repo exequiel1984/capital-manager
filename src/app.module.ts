@@ -7,6 +7,7 @@ import { YahooFinanceModule } from './yahoo-finance/yahoo-finance.module';
 import { UsersModule } from './users/users.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { AssetsModule } from './assets/assets.module';
+import { MarketDataModule } from './market-data/market-data.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { AssetsModule } from './assets/assets.module';
     YahooFinanceModule,
     UsersModule,
     TransactionsModule,
-    AssetsModule, // The CLI registered your new module here
+    AssetsModule,
+    MarketDataModule, // The CLI registered your new module here
   ],
   controllers: [AppController],
   providers: [AppService],
