@@ -1,35 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto'; // <--- Add this import!
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(newUser);
+  // Used by the Auth system to check if a user exists when they log in
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  // Used to register a brand new user
+  async create(userData: Partial<User>): Promise<User> {
+    // 1. Check if the email is already registered
+    const existingUser = await this.findOneByEmail(userData.email as string);
+    if (existingUser) {
+      throw new ConflictException('This email is already registered.');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+    // 2. Hash the password securely! (10 salt rounds is the industry standard)
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(userData.password as string, saltRounds);
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+    // 3. Prepare the new user object with the scrambled password
+    const newUser = this.usersRepository.create({
+      ...userData,
+      password: hashedPassword,
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    // 4. Save to the AWS database
+    return this.usersRepository.save(newUser);
   }
 }

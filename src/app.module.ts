@@ -9,6 +9,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { AssetsModule } from './assets/assets.module';
 import { MarketDataModule } from './market-data/market-data.module';
 import { TechnicalAnalysisModule } from './technical-analysis/technical-analysis.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { TechnicalAnalysisModule } from './technical-analysis/technical-analysis
     TransactionsModule,
     AssetsModule,
     MarketDataModule,
-    TechnicalAnalysisModule, // The CLI registered your new module here
+    TechnicalAnalysisModule,
+    AuthModule, // The CLI registered your new module here
   ],
   controllers: [AppController],
   providers: [AppService],

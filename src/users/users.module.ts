@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { User } from './entities/user.entity';
+import { User } from './entities/user.entity'; // <-- Updated to point to the entities folder
 
 @Module({
-  // This line registers the User entity
-  imports: [TypeOrmModule.forFeature([User])], 
-  controllers: [UsersController],
+  imports: [TypeOrmModule.forFeature([User])],
   providers: [UsersService],
+  exports: [UsersService], // Exporting so the Auth module can find users
 })
 export class UsersModule {}
