@@ -22,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.DB_PASSWORD, // The password you created for RDS
       database: 'capital_manager', // The database you just created in HeidiSQL
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      autoLoadEntities: true,
       synchronize: true, // This tells TypeORM to build the tables in the cloud automatically
     }),
     YahooFinanceModule,
