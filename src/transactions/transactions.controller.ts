@@ -17,7 +17,7 @@ export class TransactionsController {
   @Get('portfolio/:userId')
   async getPortfolio(@Param('userId') userId: string) {
     // We use the '+' sign to quickly convert the URL string parameter into a number
-    return await this.transactionsService.getPortfolio(+userId);
+    return await this.transactionsService.getPortfolio(userId);
   }
 
 

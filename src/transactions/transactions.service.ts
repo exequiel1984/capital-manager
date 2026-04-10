@@ -43,7 +43,7 @@ export class TransactionsService {
     return await this.transactionRepository.save(newTransaction);
   }
 
-  async getPortfolio(userId: number) {
+  async getPortfolio(userId: string) {
     // 1. Fetch all transactions for this specific user
     const transactions = await this.transactionRepository.find({
       where: { user: { id: userId } },
