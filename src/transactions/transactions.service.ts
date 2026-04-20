@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 import { Asset } from '../assets/entities/asset.entity';
+import { AssetClass } from '../assets/entities/asset-class.entity';
 import { YahooFinanceService } from '../yahoo-finance/yahoo-finance.service';
 import * as xlsx from 'xlsx';
 
@@ -16,6 +17,9 @@ export class TransactionsService {
     @InjectRepository(Asset)
     private assetRepository: Repository<Asset>,
     
+    @InjectRepository(AssetClass)
+    private assetClassRepository: Repository<AssetClass>,
+
     private yahooFinanceService: YahooFinanceService,
   ) {}
 
@@ -36,8 +40,8 @@ export class TransactionsService {
     const newTransaction = this.transactionRepository.create({
       quantity: createTransactionDto.quantity,
       purchase_price: livePrice,
-      user: { id: createTransactionDto.userId }, 
-      asset: { id: asset.id } // <-- Updated from cedear to asset!
+      user: { id: createTransactionDto.userId as any }, 
+      asset: { id: asset.id as any }
     });
 
     // 4. Save to the database
@@ -47,8 +51,8 @@ export class TransactionsService {
   async getPortfolio(userId: string) {
     // 1. Fetch all transactions for this specific user
     const transactions = await this.transactionRepository.find({
-      where: { user: { id: userId } },
-      relations: ['asset'], // <-- Updated relation name!
+      where: { user: { id: userId as any } },
+      relations: ['asset'], 
     });
 
     // 2. Calculate the total invested value
@@ -64,8 +68,8 @@ export class TransactionsService {
       assetCount: transactions.length,
       assets: transactions.map(tx => ({
         transactionId: tx.id,
-        ticker: tx.asset.ticker,   // <-- Updated to tx.asset
-        name: tx.asset.name,       // <-- Updated to tx.asset.name
+        ticker: tx.asset.ticker,
+        name: tx.asset.name,
         shares: tx.quantity,
         purchasePrice: tx.purchase_price,
         purchaseDate: tx.purchase_date
@@ -90,9 +94,6 @@ export class TransactionsService {
       const price = parseFloat(cleanPriceStr);
       const quantity = Number(row['Cantidad']);
       const ticker = String(row['Ticker']).trim();
-      
-      const operation = String(row['Descripcion']).toLowerCase();
-      const type = operation.includes('compra') ? 'BUY' : 'SELL';
 
       // Look up the real Asset UUID using your injected repository
       let asset = await this.assetRepository.findOne({ 
@@ -100,18 +101,35 @@ export class TransactionsService {
       });
 
       if (!asset) {
-        asset = this.assetRepository.create({ ticker: ticker, name: `Imported Asset (${ticker})` });
-        await this.assetRepository.save(asset);
-      }
+        // 1. Find or create the Asset Class dynamically from Excel
+        const instrumentType = row['Tipo de Instrumento'] || 'Desconocido';
+        let assetClass = await this.assetClassRepository.findOne({ 
+          where: { name: instrumentType } 
+        });
 
-      await this.transactionRepository.save({
-        userId,
-        assetId: asset.id, 
-        type,
-        quantity,
-        price,
-        executedAt: new Date(row['Concertacion'])
+        if (!assetClass) {
+          assetClass = this.assetClassRepository.create({ name: instrumentType });
+          await this.assetClassRepository.save(assetClass);
+        }
+
+        asset = this.assetRepository.create({ 
+          ticker: ticker, 
+          name: `Imported Asset (${ticker})`,
+          assetClass: assetClass // Uses the exact relation name from your entity
+        });
+        await this.assetRepository.save(asset);
+      } // <--- THIS WAS THE MISSING BRACKET
+
+      // Now this correctly runs for EVERY row, whether the asset is new or existing
+      const newTransaction = this.transactionRepository.create({
+        user: { id: userId as any },
+        asset: asset,
+        quantity: quantity,
+        purchase_price: price,
+        purchase_date: new Date(row['Concertacion'])
       });
+
+      await this.transactionRepository.save(newTransaction);
       
       importedCount++;
     }
@@ -121,8 +139,6 @@ export class TransactionsService {
       transactionsProcessed: importedCount 
     };
   }
-
-
 
   findAll() {
     return `This action returns all transactions`;
