@@ -16,10 +16,12 @@ export class TransactionsController {
 
   @Post('import/balanz')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadBalanzHistory(@UploadedFile() file: any) {
-    // We are passing a temporary string for the userId just to test the file pipeline.
-    // Once the file uploads successfully, we will securely connect this to your JWT token!
-    return await this.transactionsService.importBalanzHistory(file, 'test-user-id');
+  async uploadBalanzHistory(
+    @UploadedFile() file: any,
+    @Body('userId') userId: string // <-- Now it dynamically reads the userId from the request!
+  ) {
+    // Pass the dynamic userId to the service
+    return await this.transactionsService.importBalanzHistory(file, userId);
   }
 
   // This listens for GET requests like: http://localhost:3000/transactions/portfolio/1
