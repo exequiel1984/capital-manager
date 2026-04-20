@@ -95,13 +95,13 @@ export class TransactionsService {
       const type = operation.includes('compra') ? 'BUY' : 'SELL';
 
       // Look up the real Asset UUID using your injected repository
-      const asset = await this.assetRepository.findOne({ 
+      let asset = await this.assetRepository.findOne({ 
         where: { ticker: ticker } 
       });
 
       if (!asset) {
-        console.warn(`Asset ${ticker} not found in database! Skipping.`);
-        continue; 
+        asset = this.assetRepository.create({ ticker: ticker, name: `Imported Asset (${ticker})` });
+        await this.assetRepository.save(asset);
       }
 
       await this.transactionRepository.save({
