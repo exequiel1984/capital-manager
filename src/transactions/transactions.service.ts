@@ -83,7 +83,7 @@ export class TransactionsService {
     let importedCount = 0;
 
     for (const row of rawData) {
-      if (row['Estado'] !== 'Ejecutada') continue;
+      if (Number(row['Precio']) === -1) continue;
       if (!row['Ticker'] || row['Ticker'] === '-') continue;
 
       const cleanPriceStr = String(row['Precio']).replace('.', '').replace(',', '.');
@@ -91,7 +91,7 @@ export class TransactionsService {
       const quantity = Number(row['Cantidad']);
       const ticker = String(row['Ticker']).trim();
       
-      const operation = String(row['Operación']).toLowerCase();
+      const operation = String(row['Descripcion']).toLowerCase();
       const type = operation.includes('compra') ? 'BUY' : 'SELL';
 
       // Look up the real Asset UUID using your injected repository
@@ -110,7 +110,7 @@ export class TransactionsService {
         type,
         quantity,
         price,
-        executedAt: new Date(row['Fecha']) 
+        executedAt: new Date(row['Concertacion'])
       });
       
       importedCount++;
