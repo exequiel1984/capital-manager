@@ -1,10 +1,11 @@
-  import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 import { Asset } from '../assets/entities/asset.entity';
 import { YahooFinanceService } from '../yahoo-finance/yahoo-finance.service';
+import * as xlsx from 'xlsx';
 
 @Injectable()
 export class TransactionsService {
@@ -69,6 +70,55 @@ export class TransactionsService {
         purchasePrice: tx.purchase_price,
         purchaseDate: tx.purchase_date
       }))
+    };
+  }
+
+  async importBalanzHistory(file: any, userId: string) {
+    if (!file) throw new BadRequestException('No file uploaded');
+
+    const workbook = xlsx.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const rawData = xlsx.utils.sheet_to_json<any>(workbook.Sheets[sheetName]);
+
+    let importedCount = 0;
+
+    for (const row of rawData) {
+      if (row['Estado'] !== 'Ejecutada') continue;
+      if (!row['Ticker'] || row['Ticker'] === '-') continue;
+
+      const cleanPriceStr = String(row['Precio']).replace('.', '').replace(',', '.');
+      const price = parseFloat(cleanPriceStr);
+      const quantity = Number(row['Cantidad']);
+      const ticker = String(row['Ticker']).trim();
+      
+      const operation = String(row['Operación']).toLowerCase();
+      const type = operation.includes('compra') ? 'BUY' : 'SELL';
+
+      // Look up the real Asset UUID using your injected repository
+      const asset = await this.assetRepository.findOne({ 
+        where: { ticker: ticker } 
+      });
+
+      if (!asset) {
+        console.warn(`Asset ${ticker} not found in database! Skipping.`);
+        continue; 
+      }
+
+      await this.transactionRepository.save({
+        userId,
+        assetId: asset.id, 
+        type,
+        quantity,
+        price,
+        executedAt: new Date(row['Fecha']) 
+      });
+      
+      importedCount++;
+    }
+
+    return { 
+      message: 'Import successful', 
+      transactionsProcessed: importedCount 
     };
   }
 

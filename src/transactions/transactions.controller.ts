@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -11,6 +12,14 @@ export class TransactionsController {
   async create(@Body() createTransactionDto: CreateTransactionDto) {
     // We are now handing the data off to the service we wrote!
     return await this.transactionsService.create(createTransactionDto);
+  }
+
+  @Post('import/balanz')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBalanzHistory(@UploadedFile() file: any) {
+    // We are passing a temporary string for the userId just to test the file pipeline.
+    // Once the file uploads successfully, we will securely connect this to your JWT token!
+    return await this.transactionsService.importBalanzHistory(file, 'test-user-id');
   }
 
   // This listens for GET requests like: http://localhost:3000/transactions/portfolio/1
